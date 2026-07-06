@@ -1,10 +1,13 @@
+/// <reference types="jest" />
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
 
-describe('AppController (e2e)', () => {
+process.env.NODE_ENV = 'test';
+
+describe('API health (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
@@ -20,7 +23,13 @@ describe('AppController (e2e)', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(200)
-      .expect('Hello World!');
+      .expect((response) => {
+        expect(response.body).toMatchObject({
+          name: 'Quiniela Mundial 2026 API',
+          status: 'ok',
+          basePath: '/api',
+        });
+      });
   });
 
   afterEach(async () => {

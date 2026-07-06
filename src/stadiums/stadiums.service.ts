@@ -8,7 +8,7 @@ import { Match } from '../matches/match.entity';
 export class StadiumsService {
   constructor(
     @InjectRepository(Stadium) private stadiumRepo: Repository<Stadium>,
-    @InjectRepository(Match)   private matchRepo: Repository<Match>,
+    @InjectRepository(Match) private matchRepo: Repository<Match>,
   ) {}
 
   findAll() {

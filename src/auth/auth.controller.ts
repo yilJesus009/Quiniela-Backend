@@ -1,7 +1,14 @@
-import { Controller, Post, Body, UseGuards, Req, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  HttpCode,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto } from './auth.dto';
+import { BootstrapAdminDto, LoginDto, RegisterDto } from './auth.dto';
 import { ExtractJwt } from 'passport-jwt';
 
 @Controller() // sin prefijo extra — las rutas serán /api/register, /api/login, /api/logout
@@ -11,6 +18,11 @@ export class AuthController {
   @Post('register')
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
+  }
+
+  @Post('bootstrap/admin')
+  bootstrapAdmin(@Body() dto: BootstrapAdminDto) {
+    return this.authService.bootstrapAdmin(dto);
   }
 
   @Post('login')

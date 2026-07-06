@@ -1,5 +1,7 @@
 import {
-  Injectable, NotFoundException, UnprocessableEntityException,
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,7 +13,7 @@ import { CreatePredictionDto } from './predictions.dto';
 export class PredictionsService {
   constructor(
     @InjectRepository(Prediction) private predRepo: Repository<Prediction>,
-    @InjectRepository(Match)      private matchRepo: Repository<Match>,
+    @InjectRepository(Match) private matchRepo: Repository<Match>,
   ) {}
 
   async upsert(dto: CreatePredictionDto, userId: number) {
@@ -89,7 +91,13 @@ export class PredictionsService {
 
   async calculatePointsForMatch(matchId: number) {
     const match = await this.matchRepo.findOne({ where: { id: matchId } });
-    if (!match || match.status !== 'finished' || match.homeScore === null || match.awayScore === null) return;
+    if (
+      !match ||
+      match.status !== 'finished' ||
+      match.homeScore === null ||
+      match.awayScore === null
+    )
+      return;
 
     const predictions = await this.predRepo.find({ where: { matchId } });
 
@@ -101,8 +109,14 @@ export class PredictionsService {
         pred.pointsEarned = 3;
         pred.status = 'correct_score';
       } else {
-        const realWinner = realHome > realAway ? 'home' : realHome < realAway ? 'away' : 'draw';
-        const predWinner = pred.homeScore > pred.awayScore ? 'home' : pred.homeScore < pred.awayScore ? 'away' : 'draw';
+        const realWinner =
+          realHome > realAway ? 'home' : realHome < realAway ? 'away' : 'draw';
+        const predWinner =
+          pred.homeScore > pred.awayScore
+            ? 'home'
+            : pred.homeScore < pred.awayScore
+              ? 'away'
+              : 'draw';
 
         if (realWinner === predWinner) {
           pred.pointsEarned = 1;

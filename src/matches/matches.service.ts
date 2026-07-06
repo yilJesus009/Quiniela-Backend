@@ -5,9 +5,7 @@ import { Match } from './match.entity';
 
 @Injectable()
 export class MatchesService {
-  constructor(
-    @InjectRepository(Match) private matchRepo: Repository<Match>,
-  ) {}
+  constructor(@InjectRepository(Match) private matchRepo: Repository<Match>) {}
 
   async findAll(filters: {
     phase?: string;
@@ -28,8 +26,10 @@ export class MatchesService {
       return qb.getMany();
     }
 
-    if (filters.phase)  qb.andWhere('m.phase = :phase',   { phase: filters.phase });
-    if (filters.status) qb.andWhere('m.status = :status', { status: filters.status });
+    if (filters.phase)
+      qb.andWhere('m.phase = :phase', { phase: filters.phase });
+    if (filters.status)
+      qb.andWhere('m.status = :status', { status: filters.status });
     if (filters.date) {
       qb.andWhere('DATE(m.match_date) = :date', { date: filters.date });
     }
@@ -41,8 +41,12 @@ export class MatchesService {
     const qb = this.matchRepo
       .createQueryBuilder('m')
       .select([
-        'm.id', 'm.homeTeam', 'm.awayTeam',
-        'm.status', 'm.homeScore', 'm.awayScore',
+        'm.id',
+        'm.homeTeam',
+        'm.awayTeam',
+        'm.status',
+        'm.homeScore',
+        'm.awayScore',
       ]);
 
     if (since) {

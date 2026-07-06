@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, MaxLength } from 'class-validator';
+import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class RegisterDto {
   @IsString()
@@ -22,4 +22,9 @@ export class LoginDto {
 
   @IsString()
   password: string;
+}
+
+export class BootstrapAdminDto extends RegisterDto {
+  @IsString()
+  bootstrap_key: string;
 }

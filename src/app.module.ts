@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
 
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
@@ -10,6 +11,7 @@ import { StadiumsModule } from './stadiums/stadiums.module';
 import { PredictionsModule } from './predictions/predictions.module';
 import { AdminModule } from './admin/admin.module';
 import { SyncModule } from './sync/sync.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 import { User } from './users/user.entity';
 import { Token } from './auth/token.entity';
@@ -20,6 +22,7 @@ import { GroupMember } from './groups/group-member.entity';
 import { Prediction } from './predictions/prediction.entity';
 
 @Module({
+  controllers: [AppController],
   imports: [
     // Variables de entorno disponibles globalmente
     ConfigModule.forRoot({ isGlobal: true }),
@@ -49,6 +52,7 @@ import { Prediction } from './predictions/prediction.entity';
     PredictionsModule,
     AdminModule,
     SyncModule,
+    DashboardModule,
   ],
 })
 export class AppModule {}

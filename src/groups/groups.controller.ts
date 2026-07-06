@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+  HttpCode,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GroupsService } from './groups.service';
 import { CreateGroupDto, JoinGroupDto } from './groups.dto';
@@ -26,12 +35,25 @@ export class GroupsController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: { id: number }) {
+  findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { id: number },
+  ) {
     return this.groupsService.findOne(id, user.id);
   }
 
   @Get(':id/leaderboard')
-  leaderboard(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: { id: number }) {
+  leaderboard(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { id: number },
+  ) {
     return this.groupsService.getLeaderboard(id, user.id);
+  }
+  @Get(':id/my-position')
+  myPosition(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.groupsService.getMyPosition(id, user.id);
   }
 }

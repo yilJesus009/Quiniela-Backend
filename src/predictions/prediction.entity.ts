@@ -1,12 +1,18 @@
 import {
-  Entity, PrimaryGeneratedColumn, Column,
-  CreateDateColumn, UpdateDateColumn,
-  ManyToOne, JoinColumn, Unique,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  Unique,
 } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Match } from '../matches/match.entity';
 
-export type PredictionStatus = 'pending' | 'correct_score' | 'correct_winner' | 'incorrect';
+export type PredictionStatus =
+  'pending' | 'correct_score' | 'correct_winner' | 'incorrect';
 
 @Entity('predictions')
 @Unique(['userId', 'matchId'])

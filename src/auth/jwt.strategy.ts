@@ -22,7 +22,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   // Se llama automáticamente después de verificar la firma JWT
-  async validate(req: any, payload: { sub: number; email: string; role: string }) {
+  async validate(
+    req: any,
+    payload: { sub: number; email: string; role: string },
+  ) {
     // Extraer el token raw del header para verificar que no fue revocado
     const rawToken = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
     if (!rawToken) throw new UnauthorizedException('Token no proporcionado.');

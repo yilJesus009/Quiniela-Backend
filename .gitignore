@@ -16,3 +16,33 @@ logs
 # Archivos del sistema
 .DS_Store
 Thumbs.db
+
+# Dependencias
+node_modules/
+
+# Compilación y producción
+dist/
+build/
+
+# Variables de entorno y secretos (¡Crucial!)
+.env
+.env.production
+.env.local
+
+# Carpeta de Base de Datos local (según tu árbol de archivos)
+db/
+
+# Logs y debugs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.log
+
+# IDEs y editores
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

@@ -1,4 +1,11 @@
-import { Controller, Get, Param, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { MatchesService } from './matches.service';
 
@@ -9,10 +16,10 @@ export class MatchesController {
 
   @Get()
   findAll(
-    @Query('phase')  phase?: string,
+    @Query('phase') phase?: string,
     @Query('status') status?: string,
-    @Query('date')   date?: string,
-    @Query('next')   next?: string,
+    @Query('date') date?: string,
+    @Query('next') next?: string,
   ) {
     return this.matchesService.findAll({ phase, status, date, next });
   }

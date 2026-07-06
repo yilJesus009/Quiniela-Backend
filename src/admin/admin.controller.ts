@@ -1,5 +1,13 @@
 // admin.controller.ts
-import { Controller, Post, Patch, Body, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Patch,
+  Body,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AdminGuard } from '../common/guards/admin.guard';
 import { AdminService } from './admin.service';
@@ -16,7 +24,10 @@ export class AdminController {
   }
 
   @Patch(':id')
-  updateMatch(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateMatchDto) {
+  updateMatch(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateMatchDto,
+  ) {
     return this.adminService.updateMatch(id, dto);
   }
 }

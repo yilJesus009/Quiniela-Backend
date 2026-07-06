@@ -1,15 +1,25 @@
 import {
-  Entity, PrimaryGeneratedColumn, Column,
-  CreateDateColumn, UpdateDateColumn,
-  ManyToOne, OneToMany, JoinColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { Stadium } from '../stadiums/stadium.entity';
 import { Prediction } from '../predictions/prediction.entity';
 
 export type MatchStatus = 'scheduled' | 'live' | 'finished';
 export type MatchPhase =
-  | 'group' | 'round_of_32' | 'round_of_16'
-  | 'quarter' | 'semi' | 'third_place' | 'final';
+  | 'group'
+  | 'round_of_32'
+  | 'round_of_16'
+  | 'quarter'
+  | 'semi'
+  | 'third_place'
+  | 'final';
 
 @Entity('matches')
 export class Match {
@@ -56,7 +66,9 @@ export class Match {
   createdAt: Date;
 
   // Relaciones
-  @ManyToOne(() => Stadium, (stadium) => stadium.matches, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Stadium, (stadium) => stadium.matches, {
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'stadium_id' })
   stadium: Stadium;
 
