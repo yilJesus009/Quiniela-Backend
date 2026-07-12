@@ -101,10 +101,9 @@ export class PredictionsService {
 
     const predictions = await this.predRepo.find({ where: { matchId } });
 
+    const realHome = match.homeScore;
+    const realAway = match.awayScore;
     for (const pred of predictions) {
-      const realHome = match.homeScore;
-      const realAway = match.awayScore;
-
       if (pred.homeScore === realHome && pred.awayScore === realAway) {
         pred.pointsEarned = 3;
         pred.status = 'correct_score';
@@ -127,7 +126,6 @@ export class PredictionsService {
         }
       }
     }
-
     await this.predRepo.save(predictions);
   }
 }

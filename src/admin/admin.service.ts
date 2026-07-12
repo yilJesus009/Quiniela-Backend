@@ -2,11 +2,19 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Match } from '../matches/match.entity';
+import { User } from '../users/user.entity'; // NUEVO
+import { Group } from '../groups/group.entity'; // NUEVO
+import { SyncService } from '../sync/sync.service'; // NUEVO
 import { CreateMatchDto, UpdateMatchDto } from './admin.dto';
 
 @Injectable()
 export class AdminService {
-  constructor(@InjectRepository(Match) private matchRepo: Repository<Match>) {}
+  constructor(
+    @InjectRepository(Match) private matchRepo: Repository<Match>,
+    @InjectRepository(User) private userRepo: Repository<User>, // NUEVO
+    @InjectRepository(Group) private groupRepo: Repository<Group>, // NUEVO
+    private syncService: SyncService, // NUEVO
+  ) {}
 
   async createMatch(dto: CreateMatchDto) {
     const match = this.matchRepo.create({
@@ -18,6 +26,7 @@ export class AdminService {
       stadiumId: dto.stadium_id,
       externalId: dto.external_id,
     });
+
     return this.matchRepo.save(match);
   }
 
@@ -35,5 +44,24 @@ export class AdminService {
     if (dto.external_id) match.externalId = dto.external_id;
 
     return this.matchRepo.save(match);
+  }
+
+  // NUEVO: estadisticas para GET /admin/dashboard.
+  async getDashboardStats() {
+    const [totalUsers, totalGroups, totalMatches, pendingMatches] =
+      await Promise.all([
+        this.userRepo.count(),
+        this.groupRepo.count(),
+        this.matchRepo.count(),
+        this.matchRepo.count({ where: { status: 'scheduled' } }),
+      ]);
+
+    return {
+      total_users: totalUsers,
+      total_groups: totalGroups,
+      total_matches: totalMatches,
+      pending_matches: pendingMatches,
+      last_sync: this.syncService.getLastSyncedAt(),
+    };
   }
 }

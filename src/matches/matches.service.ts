@@ -7,6 +7,7 @@ import { Match } from './match.entity';
 export class MatchesService {
   constructor(@InjectRepository(Match) private matchRepo: Repository<Match>) {}
 
+  // OPCION PARA HACERLO UN DTO ===============================================================================================================================================
   async findAll(filters: {
     phase?: string;
     status?: string;
@@ -19,10 +20,11 @@ export class MatchesService {
       .orderBy('m.match_date', 'ASC');
 
     // ?next=true → próximos 10 partidos programados con fecha futura
+    const NEXT_MATCHES_LIMIT = 10;
     if (filters.next === 'true') {
       qb.where('m.status = :status', { status: 'scheduled' })
         .andWhere('m.match_date > NOW()')
-        .limit(10);
+        .limit(NEXT_MATCHES_LIMIT);
       return qb.getMany();
     }
 

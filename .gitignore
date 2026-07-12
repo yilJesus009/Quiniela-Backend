@@ -30,7 +30,7 @@ build/
 .env.local
 
 # Carpeta de Base de Datos local (según tu árbol de archivos)
-db/
+
 
 # Logs y debugs
 npm-debug.log*

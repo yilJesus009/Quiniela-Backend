@@ -47,6 +47,9 @@ type SyncResult = {
 export class SyncService {
   private readonly logger = new Logger(SyncService.name);
 
+  // NUEVO: guarda en memoria la ultima sincronizacion para mostrarla en el dashboard admin.
+  private lastSyncedAt: Date | null = null;
+
   constructor(
     @InjectRepository(Match)
     private matchRepo: Repository<Match>,
@@ -81,6 +84,9 @@ export class SyncService {
   }
 
   async syncMatchesByDate(date: string): Promise<SyncResult> {
+    // NUEVO: actualiza la fecha de ultima sincronizacion cuando se ejecuta este flujo.
+    this.lastSyncedAt = new Date();
+
     const events = await this.fetchSportsDbEventsByDate(date);
     let imported = 0;
     let updated = 0;
@@ -175,7 +181,7 @@ export class SyncService {
         timeout: 5000,
       },
     );
-
+    console.log(JSON.stringify(data, null, 2));
     return data.events ?? [];
   }
 
@@ -235,15 +241,11 @@ export class SyncService {
     let stadium: Stadium | null = null;
 
     if (event.strVenue) {
-      console.log('Venue API:', event.strVenue);
-
       stadium = await this.stadiumRepo.findOne({
         where: {
           name: ILike(event.strVenue),
         },
       });
-
-      console.log('Stadium encontrado:', stadium);
     }
 
     let match = await this.matchRepo.findOne({ where: { externalId } });
@@ -271,19 +273,7 @@ export class SyncService {
     if (stadium) {
       match.stadiumId = stadium.id;
     }
-
-    console.log('ANTES DE GUARDAR');
-    console.log({
-      id: match.id,
-      stadiumId: match.stadiumId,
-      estadio: stadium?.name,
-    });
-
     const saved = await this.matchRepo.save(match);
-
-    console.log('DESPUES DE GUARDAR');
-    console.log(saved);
-
     return saved;
   }
 
@@ -328,9 +318,12 @@ export class SyncService {
 
     await this.matchRepo.save(match);
 
-    if (status === 'finished' && scoreChanged) {
+    if (status === 'finished') {
       await this.predictionsService.calculatePointsForMatch(match.id);
-      this.logger.log(`Puntos calculados para partido ${match.id}`);
+
+      if (scoreChanged || statusChanged) {
+        this.logger.log(`Puntos recalculados para partido ${match.id}`);
+      }
     }
 
     return scoreChanged || statusChanged;
@@ -393,7 +386,9 @@ export class SyncService {
   private mapStatus(strStatus: string): MatchStatus {
     if (!strStatus) return 'scheduled';
     const s = strStatus.toLowerCase();
-    if (s === 'ft' || s === 'aet' || s === 'pen') return 'finished';
+    if (s === 'ft' || s === 'aet' || s === 'pen' || s === 'ap') {
+      return 'finished';
+    }
     if (s === 'live' || s === '1h' || s === '2h' || s === 'ht') return 'live';
     return 'scheduled';
   }
@@ -403,6 +398,11 @@ export class SyncService {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase();
+  }
+
+  // NUEVO: metodo usado por AdminService.getDashboardStats().
+  getLastSyncedAt(): string | null {
+    return this.lastSyncedAt ? this.lastSyncedAt.toISOString() : null;
   }
 
   async syncAutomaticWindow() {
