@@ -31,10 +31,6 @@ type SportsDbDayResponse = {
   events?: SportsDbEvent[] | null;
 };
 
-type SportsDbSearchResponse = {
-  event?: SportsDbEvent[] | null;
-};
-
 type SyncResult = {
   date: string;
   imported: number;
@@ -47,7 +43,7 @@ type SyncResult = {
 export class SyncService {
   private readonly logger = new Logger(SyncService.name);
 
-  // NUEVO: guarda en memoria la ultima sincronizacion para mostrarla en el dashboard admin.
+  //guarda en memoria la ultima sincronizacion para mostrarla en el dashboard admin.
   private lastSyncedAt: Date | null = null;
 
   constructor(
@@ -72,7 +68,8 @@ export class SyncService {
     });
     this.logger.log('Cron de sincronizacion activo (cada 20 min)');
   }
-
+  // ====================================================================================================================================
+  //adapta el formato de fecha
   async syncTodayMatches() {
     const today = new Date();
     const dateStr = today.toISOString().split('T')[0];
@@ -82,9 +79,9 @@ export class SyncService {
       `Sincronizacion completada. Importados: ${result.imported}, actualizados: ${result.updated}, omitidos: ${result.skipped}.`,
     );
   }
-
+  // ====================================================================================================================================
   async syncMatchesByDate(date: string): Promise<SyncResult> {
-    // NUEVO: actualiza la fecha de ultima sincronizacion cuando se ejecuta este flujo.
+    // actualiza la fecha de ultima sincronizacion cuando se ejecuta este flujo.
     this.lastSyncedAt = new Date();
 
     const events = await this.fetchSportsDbEventsByDate(date);
@@ -122,48 +119,7 @@ export class SyncService {
     };
   }
 
-  async syncMatchByTeams(date: string, homeTeam: string, awayTeam: string) {
-    const events = await this.fetchSportsDbEventsByFixture(
-      date,
-      homeTeam,
-      awayTeam,
-    );
-    const event = events.find((item) =>
-      this.isSameFixture(item, date, homeTeam, awayTeam),
-    );
-
-    if (!event) {
-      return {
-        date,
-        home_team: homeTeam,
-        away_team: awayTeam,
-        found: false,
-        message: 'TheSportsDB no devolvio un evento para ese partido.',
-      };
-    }
-
-    const before = await this.matchRepo.findOne({
-      where: { externalId: event.idEvent as string },
-    });
-    const match = await this.upsertMatchFromEvent(event);
-    const updated = await this.updateMatchScoreFromEvent(match, event);
-
-    return {
-      found: true,
-      imported: !before,
-      updated,
-      match: {
-        id: match.id,
-        external_id: match.externalId,
-        home_team: match.homeTeam,
-        away_team: match.awayTeam,
-        match_date: match.matchDate,
-        status: match.status,
-        home_score: match.homeScore,
-        away_score: match.awayScore,
-      },
-    };
-  }
+  // ====================================================================================================================================
 
   private async fetchSportsDbEventsByDate(
     date: string,
@@ -185,25 +141,7 @@ export class SyncService {
     return data.events ?? [];
   }
 
-  private async fetchSportsDbEventsByFixture(
-    date: string,
-    homeTeam: string,
-    awayTeam: string,
-  ): Promise<SportsDbEvent[]> {
-    const { data } = await axios.get<SportsDbSearchResponse>(
-      this.buildSportsDbUrl('searchevents.php'),
-      {
-        params: {
-          e: `${homeTeam}_vs_${awayTeam}`.replace(/\s+/g, '_'),
-          d: date,
-        },
-        timeout: 5000,
-      },
-    );
-
-    return data.event ?? [];
-  }
-
+  // ====================================================================================================================================
   async syncMatchesByRange(start: string, end: string) {
     const results: SyncResult[] = [];
 
@@ -233,7 +171,7 @@ export class SyncService {
       details: results,
     };
   }
-
+  // ====================================================================================================================================
   private async upsertMatchFromEvent(event: SportsDbEvent): Promise<Match> {
     const externalId = event.idEvent as string;
     const matchDate = this.parseEventDate(event);
@@ -276,7 +214,7 @@ export class SyncService {
     const saved = await this.matchRepo.save(match);
     return saved;
   }
-
+  // ====================================================================================================================================
   private async findExistingMatchByTeamsAndDate(
     event: SportsDbEvent,
     matchDate: Date,
@@ -294,7 +232,7 @@ export class SyncService {
       })
       .getOne();
   }
-
+  // ====================================================================================================================================
   private async updateMatchScoreFromEvent(
     match: Match,
     event: SportsDbEvent,
@@ -328,12 +266,12 @@ export class SyncService {
 
     return scoreChanged || statusChanged;
   }
-
+  // ====================================================================================================================================
   private buildSportsDbUrl(endpoint: string): string {
     const baseUrl = this.config.getOrThrow<string>('SPORTSDB_BASE_URL');
     return `${baseUrl.replace(/\/$/, '')}/${endpoint}`;
   }
-
+  // ====================================================================================================================================
   private isUsableEvent(event: SportsDbEvent): boolean {
     return !!(
       event.idEvent &&
@@ -343,19 +281,7 @@ export class SyncService {
     );
   }
 
-  private isSameFixture(
-    event: SportsDbEvent,
-    date: string,
-    homeTeam: string,
-    awayTeam: string,
-  ): boolean {
-    return (
-      event.dateEvent === date &&
-      this.normalize(event.strHomeTeam ?? '') === this.normalize(homeTeam) &&
-      this.normalize(event.strAwayTeam ?? '') === this.normalize(awayTeam)
-    );
-  }
-
+  // ====================================================================================================================================
   private parseEventDate(event: SportsDbEvent): Date {
     if (event.strTimestamp) {
       return new Date(`${event.strTimestamp}Z`);
@@ -364,7 +290,7 @@ export class SyncService {
     const time = event.strTime?.replace('+00:00', '') ?? '00:00:00';
     return new Date(`${event.dateEvent}T${time}Z`);
   }
-
+  // ====================================================================================================================================
   private mapPhase(event: SportsDbEvent): MatchPhase {
     const raw = this.normalize(
       `${event.strRound ?? ''} ${event.intRound ?? ''} ${event.strEvent ?? ''}`,
@@ -382,7 +308,7 @@ export class SyncService {
     }
     return 'group';
   }
-
+  // ====================================================================================================================================
   private mapStatus(strStatus: string): MatchStatus {
     if (!strStatus) return 'scheduled';
     const s = strStatus.toLowerCase();
@@ -392,18 +318,19 @@ export class SyncService {
     if (s === 'live' || s === '1h' || s === '2h' || s === 'ht') return 'live';
     return 'scheduled';
   }
-
+  // ====================================================================================================================================
   private normalize(value: string): string {
     return value
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase();
   }
-
-  // NUEVO: metodo usado por AdminService.getDashboardStats().
+  // ====================================================================================================================================
+  // adminService.getDashboardStats()
   getLastSyncedAt(): string | null {
     return this.lastSyncedAt ? this.lastSyncedAt.toISOString() : null;
   }
+  // ====================================================================================================================================
 
   async syncAutomaticWindow() {
     const today = new Date();

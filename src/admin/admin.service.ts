@@ -46,7 +46,7 @@ export class AdminService {
     return this.matchRepo.save(match);
   }
 
-  // NUEVO: estadisticas para GET /admin/dashboard.
+  //admin/dashboard.
   async getDashboardStats() {
     const [totalUsers, totalGroups, totalMatches, pendingMatches] =
       await Promise.all([

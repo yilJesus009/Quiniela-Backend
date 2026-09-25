@@ -172,6 +172,7 @@ export class GroupsService {
       ...position,
     };
   }
+
   async join(dto: JoinGroupDto, userId: number) {
     const group = await this.groupRepo.findOne({
       where: { inviteCode: dto.invite_code },

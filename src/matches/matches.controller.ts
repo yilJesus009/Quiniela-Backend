@@ -24,7 +24,6 @@ export class MatchesController {
     return this.matchesService.findAll({ phase, status, date, next });
   }
 
-  // IMPORTANTE: /updates debe ir ANTES de /:id para que NestJS no lo interprete como un ID
   @Get('updates')
   findUpdates(@Query('since') since?: string) {
     return this.matchesService.findUpdates(since);

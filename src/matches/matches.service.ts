@@ -7,7 +7,6 @@ import { Match } from './match.entity';
 export class MatchesService {
   constructor(@InjectRepository(Match) private matchRepo: Repository<Match>) {}
 
-  // OPCION PARA HACERLO UN DTO ===============================================================================================================================================
   async findAll(filters: {
     phase?: string;
     status?: string;
